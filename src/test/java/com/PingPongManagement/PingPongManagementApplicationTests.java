@@ -1,0 +1,13 @@
+package com.PingPongManagement;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class PingPongManagementApplicationTests {
+
+	@Test
+	void contextLoads() {
+	}
+
+}
