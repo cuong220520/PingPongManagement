@@ -10,11 +10,11 @@ import javax.validation.constraints.NotNull;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequest {
-    @NotNull
-    @NotBlank
+public class RefreshTokenRequest {
+    @NotNull(message = "Refresh Token is required!")
+    @NotBlank(message = "Refresh Token can not be empty!")
+    private String refreshToken;
+    @NotNull(message = "Username is required!")
+    @NotBlank(message = "Username can not be empty!")
     private String username;
-    @NotNull
-    @NotBlank
-    private String password;
 }

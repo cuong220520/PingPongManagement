@@ -1,5 +1,6 @@
 package com.PingPongManagement.services;
 
+import com.PingPongManagement.exceptions.AppException;
 import com.PingPongManagement.models.AppUser;
 import com.PingPongManagement.repositories.AppRoleRepository;
 import com.PingPongManagement.repositories.AppUserRepository;
@@ -16,8 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.Collections.singletonList;
-
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
     @Autowired
@@ -28,9 +27,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Optional<AppUser> optionalUser = appUserRepository.findUserByUsername(username);
+        Optional<AppUser> optionalUser = appUserRepository.findByUsername(username);
 
-        AppUser user = optionalUser.orElseThrow(() -> new UsernameNotFoundException("No user found " +
+        AppUser user = optionalUser.orElseThrow(() -> new AppException("No user found " +
                 "with username: " + username));
 
         List<String> roleNames = appRoleRepository.getRoleNames(user.getUserId());

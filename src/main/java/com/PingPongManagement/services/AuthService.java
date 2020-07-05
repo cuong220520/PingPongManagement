@@ -1,15 +1,13 @@
 package com.PingPongManagement.services;
 
-import com.PingPongManagement.dtos.AuthenticationResponse;
-import com.PingPongManagement.dtos.LoginRequest;
-import com.PingPongManagement.dtos.RegisterRequest;
-import com.PingPongManagement.exceptions.PingPongManagementRequestException;
+import com.PingPongManagement.dtos.*;
+import com.PingPongManagement.exceptions.AppException;
 import com.PingPongManagement.models.AppUser;
+import com.PingPongManagement.models.RefreshToken;
 import com.PingPongManagement.repositories.AppUserRepository;
 import com.PingPongManagement.utils.JwtUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -18,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -37,6 +37,9 @@ public class AuthService {
     @Autowired
     private JwtUtil jwtUtil;
 
+    @Autowired
+    private RefreshTokenService refreshTokenService;
+
     public void signup(RegisterRequest registerRequest) {
         AppUser user = new AppUser();
         user.setUsername(registerRequest.getUsername());
@@ -49,21 +52,35 @@ public class AuthService {
         try {
             authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(),
                     loginRequest.getPassword()));
-        } catch (BadCredentialsException e) {
-            throw new PingPongManagementRequestException("Incorrect username or password", e);
+        } catch (AppException e) {
+            throw new AppException("Incorrect username or password", e);
         }
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(loginRequest.getUsername());
 
-        String token = jwtUtil.generateToken(userDetails);
+        String accessToken = jwtUtil.generateToken(userDetails);
+        String username = jwtUtil.extractUsername(accessToken);
+        RefreshToken refreshToken = refreshTokenService.generateRefreshToken();
 
-        return new AuthenticationResponse(token);
+        return new AuthenticationResponse(accessToken, refreshToken.getRefreshToken(), username);
     }
 
-    public User loadUser() {
-        User principal =
-                (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+    public AuthenticationResponse refreshToken(RefreshTokenRequest refreshTokenRequest) {
+        refreshTokenService.validateRefreshToken(refreshTokenRequest.getRefreshToken());
 
-        return principal;
+        UserDetails userDetails =
+                userDetailsService.loadUserByUsername(refreshTokenRequest.getUsername());
+
+        String accessToken = jwtUtil.generateToken(userDetails);
+
+        return new AuthenticationResponse(accessToken,
+                refreshTokenRequest.getRefreshToken(),
+                refreshTokenRequest.getUsername());
+    }
+
+    public UserResponse loadUser() {
+        User principal = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        return new UserResponse(principal.getUsername(), principal.getAuthorities());
     }
 }

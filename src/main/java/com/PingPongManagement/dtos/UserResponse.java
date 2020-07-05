@@ -3,18 +3,14 @@ package com.PingPongManagement.dtos;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
+import java.util.Collection;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class LoginRequest {
-    @NotNull
-    @NotBlank
+public class UserResponse {
     private String username;
-    @NotNull
-    @NotBlank
-    private String password;
+    private Collection<GrantedAuthority> grantedAuthorityList;
 }
