@@ -13,13 +13,11 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/auth")
+@RequestMapping("/api/auth/")
 public class AuthController {
     @Autowired
     private AuthService authService;
@@ -36,8 +34,8 @@ public class AuthController {
         try {
             return new ResponseEntity<>(authService.loadUser(), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ResponseMessage("There is no user"),
-                    HttpStatus.UNAUTHORIZED);
+            return new ResponseEntity<>(new ResponseMessage("Server error!"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -53,8 +51,8 @@ public class AuthController {
                 return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
             }
 
-            return new ResponseEntity<>(new ResponseMessage("Invalid Credentials"),
-                    HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(new ResponseMessage("Server error!"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -76,7 +74,12 @@ public class AuthController {
         } catch (Exception e) {
             List<FieldError> errors = bindingResult.getFieldErrors();
 
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            if (!errors.isEmpty()) {
+                return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            }
+
+            return new ResponseEntity<>(new ResponseMessage("Server error!"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -89,7 +92,12 @@ public class AuthController {
         } catch (Exception e) {
             List<FieldError> errors = bindingResult.getFieldErrors();
 
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            if (!errors.isEmpty()) {
+                return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            }
+
+            return new ResponseEntity<>(new ResponseMessage("Server error!"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -104,7 +112,12 @@ public class AuthController {
         } catch (Exception e) {
             List<FieldError> errors = bindingResult.getFieldErrors();
 
-            return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            if (!errors.isEmpty()) {
+                return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+            }
+
+            return new ResponseEntity<>(new ResponseMessage("Server error!"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }

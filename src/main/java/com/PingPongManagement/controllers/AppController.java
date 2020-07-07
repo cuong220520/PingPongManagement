@@ -1,4 +1,5 @@
 package com.PingPongManagement.controllers;
+import com.PingPongManagement.dtos.ResponseMessage;
 import com.PingPongManagement.exceptions.AppException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,8 +16,8 @@ public class AppController {
             System.out.println("hello");
             return new ResponseEntity<>("hello", HttpStatus.OK);
         } catch (AppException e) {
-            System.out.println("error");
-            throw new AppException("Unauthorized", e);
+            return new ResponseEntity<>(new ResponseMessage("Server error!"),
+                    HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 }
