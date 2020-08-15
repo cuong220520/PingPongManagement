@@ -4,12 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -22,11 +18,14 @@ public class AppUser {
     @GeneratedValue(strategy = IDENTITY)
     private Integer userId;
 
-    @NotNull
-    @NotBlank
+    @NotBlank(message = "Username must not be blank!")
     @Column(unique = true)
     private String username;
 
-    @NotBlank
+    @NotBlank(message = "Password must not be blank!")
     private String password;
+
+    @OneToOne
+    @JoinColumn(name = "teamId", referencedColumnName = "teamId")
+    private Team team;
 }

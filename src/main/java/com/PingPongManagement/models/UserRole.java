@@ -20,7 +20,7 @@ public class UserRole {
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "userId", referencedColumnName = "userId")
-    private AppUser user;
+    private AppUser appUser;
 
     @ManyToOne(fetch = LAZY)
     @JoinColumn(name = "roleId", referencedColumnName = "roleId")

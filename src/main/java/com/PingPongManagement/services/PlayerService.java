@@ -28,7 +28,16 @@ public class PlayerService {
 
     // search players service
     public List<Player> searchPlayers(SearchRequest term) {
-        return playerRepository.findByFirstNameContaining(term.getTerm());
+        /*List<Player> players = new ArrayList<>();
+
+        players.addAll(playerRepository.findByFirstNameContaining(term.getTerm()));
+        players.addAll(playerRepository.findByLastNameContaining(term.getTerm()));
+        players.addAll(playerRepository.findByPlayerCodeContaining(term.getTerm()));
+
+        return players;*/
+
+        return playerRepository.findByFirstNameContainingOrLastNameContainingOrPlayerCodeContaining(term.getTerm(),
+                term.getTerm(), term.getTerm());
     }
 
     // save player service
@@ -46,6 +55,13 @@ public class PlayerService {
         Player player = playerRepository.findById(playerId).orElseThrow(() -> new AppException(
                 "No player found with playerId: " + playerId));
 
+        List<PlayerAchievement> playerAchievements =
+                playerAchievementRepository.findByPlayerPlayerId(playerId);
+
+        for (PlayerAchievement playerAchievement : playerAchievements) {
+            playerAchievementRepository.deleteById(playerAchievement.getPlayerAchievementId());
+        }
+
         playerRepository.delete(player);
     }
 
@@ -54,44 +70,42 @@ public class PlayerService {
         Player player = getPlayer(playerId).orElseThrow(() -> new AppException("Player not found " +
                 "with playerId: " + playerId));
 
-        if (player.getAccumulatedPoint() != 0.0) {
-            PlayerAchievement playerAchievement = new PlayerAchievement();
+        PlayerAchievement playerAchievement = new PlayerAchievement();
 
-            player.setUpdatedPoint(player.getUpdatedPoint() + player.getAccumulatedPoint());
+        player.setUpdatedPoint(player.getUpdatedPoint() + player.getAccumulatedPoint());
 
-            player.setAccumulatedPoint(0.0);
+        player.setAccumulatedPoint(0.0);
 
-            Double playerUpdatedPoint = player.getUpdatedPoint();
+        Double playerUpdatedPoint = player.getUpdatedPoint();
 
-            if (playerUpdatedPoint > 900.0 && playerUpdatedPoint < 1099.0) {
-                player.setRanking("F");
-                playerAchievement.setRanking("F");
-            } else if (playerUpdatedPoint > 1100.0 && playerUpdatedPoint < 1299.0) {
-                player.setRanking("E");
-                playerAchievement.setRanking("E");
-            } else if (playerUpdatedPoint > 1300.0 && playerUpdatedPoint < 1499.0) {
-                player.setRanking("D");
-                playerAchievement.setRanking("D");
-            } else if (playerUpdatedPoint > 1500.0 && playerUpdatedPoint < 1699.0) {
-                player.setRanking("C");
-                playerAchievement.setRanking("C");
-            } else if (playerUpdatedPoint > 1700.0 && playerUpdatedPoint < 1899.0) {
-                player.setRanking("B");
-                playerAchievement.setRanking("B");
-            } else {
-                player.setRanking("Unknown");
-                playerAchievement.setRanking("Unknown");
-            }
-
-            playerAchievement.setPlayer(player);
-            playerAchievement.setNickName(player.getNickName());
-            playerAchievement.setPlayerCode(player.getPlayerCode());
-            playerAchievement.setPoint(playerUpdatedPoint);
-            playerAchievement.setUpdatedDate(new Date());
-
-            playerRepository.save(player);
-            playerAchievementRepository.save(playerAchievement);
+        if (playerUpdatedPoint >= 900.0 && playerUpdatedPoint <= 1099.0) {
+            player.setRanking("F");
+            playerAchievement.setRanking("F");
+        } else if (playerUpdatedPoint >= 1100.0 && playerUpdatedPoint <= 1299.0) {
+            player.setRanking("E");
+            playerAchievement.setRanking("E");
+        } else if (playerUpdatedPoint >= 1300.0 && playerUpdatedPoint <= 1499.0) {
+            player.setRanking("D");
+            playerAchievement.setRanking("D");
+        } else if (playerUpdatedPoint >= 1500.0 && playerUpdatedPoint <= 1699.0) {
+            player.setRanking("C");
+            playerAchievement.setRanking("C");
+        } else if (playerUpdatedPoint >= 1700.0 && playerUpdatedPoint <= 1899.0) {
+            player.setRanking("B");
+            playerAchievement.setRanking("B");
+        } else {
+            player.setRanking("Unknown");
+            playerAchievement.setRanking("Unknown");
         }
+
+        playerAchievement.setPlayer(player);
+        playerAchievement.setNickName(player.getNickName());
+        playerAchievement.setPlayerCode(player.getPlayerCode());
+        playerAchievement.setPoint(playerUpdatedPoint);
+        playerAchievement.setUpdatedDate(new Date());
+
+        playerRepository.save(player);
+        playerAchievementRepository.save(playerAchievement);
     }
 
     // update all players achievement

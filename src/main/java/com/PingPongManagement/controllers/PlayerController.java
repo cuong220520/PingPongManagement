@@ -24,7 +24,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/player/")
+@RequestMapping("/api/player")
 public class PlayerController {
     @Autowired
     private PlayerService playerService;
@@ -59,7 +59,7 @@ public class PlayerController {
                         HttpStatus.OK);
             }
 
-            return new ResponseEntity<>(players, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(players, HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new ResponseMessage("Server error!"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
@@ -86,10 +86,9 @@ public class PlayerController {
 
     // search players by firstName route
     @PostMapping("/search")
-    public ResponseEntity<?> searchPlayer(@RequestBody SearchRequest term) {
+    public ResponseEntity<?> searchPlayer(@RequestBody SearchRequest searchRequest) {
         try {
-            System.out.println(playerService.searchPlayers(term));
-            return new ResponseEntity<>(playerService.searchPlayers(term), HttpStatus.OK);
+            return new ResponseEntity<>(playerService.searchPlayers(searchRequest), HttpStatus.OK);
         } catch (Exception e) {
             return new ResponseEntity<>(new ResponseMessage("Server error!"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
@@ -160,11 +159,13 @@ public class PlayerController {
         try {
             String fileName = file.getOriginalFilename();
             String filePath =
-                    request.getServletContext().getContextPath() + UPLOAD_DIR + File.separator + fileName;
+                    request.getServletContext().getRealPath("") + UPLOAD_DIR + File.separator + fileName;
+
+            System.out.println(filePath);
             saveFile(file.getInputStream(), filePath);
             return new ResponseEntity<>(new UploadFileResponse(fileName, filePath), HttpStatus.OK);
         } catch (Exception e) {
-            return new ResponseEntity<>(new ResponseMessage("Server error!"),
+            return new ResponseEntity<>(new ResponseMessage(e.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -172,10 +173,11 @@ public class PlayerController {
     // save file function
     public void saveFile(InputStream inputStream, String filePath) {
         try {
+            System.out.println(filePath);
             OutputStream outputStream = new FileOutputStream(new File(filePath));
 
             int read = 0;
-            byte[] bytes = new byte[1024];
+            byte []bytes = new byte[1024];
 
             while ((read = inputStream.read(bytes)) != -1) {
                 outputStream.write(bytes, 0, read);
@@ -187,4 +189,22 @@ public class PlayerController {
             throw new AppException("Save file error!", e);
         }
     }
+
+    /*private void saveFile(InputStream inputStream, String filePath) {
+        try {
+            OutputStream outputStream = new FileOutputStream(new File(filePath));
+
+            int read = 0;
+            byte []bytes = new byte[1024];
+
+            while ((read = inputStream.read(bytes)) != -1) {
+                outputStream.write(bytes, 0, read);
+            }
+
+            outputStream.flush();
+            outputStream.close();
+        } catch (Exception e) {
+
+        }
+    }*/
 }

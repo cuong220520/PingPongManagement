@@ -1,5 +1,6 @@
 package com.PingPongManagement.dtos;
 
+import com.PingPongManagement.models.Team;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,4 +14,5 @@ import java.util.Collection;
 public class UserResponse {
     private String username;
     private Collection<GrantedAuthority> grantedAuthorityList;
+    private Team team;
 }

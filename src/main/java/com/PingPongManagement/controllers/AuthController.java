@@ -1,10 +1,12 @@
 package com.PingPongManagement.controllers;
 
 import com.PingPongManagement.dtos.*;
+import com.PingPongManagement.exceptions.AppException;
 import com.PingPongManagement.models.AppUser;
 import com.PingPongManagement.repositories.AppUserRepository;
 import com.PingPongManagement.services.AuthService;
 import com.PingPongManagement.services.RefreshTokenService;
+import jdk.swing.interop.SwingInterOpUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,9 +43,10 @@ public class AuthController {
 
     // login route
     @PostMapping("/login")
-    public ResponseEntity<?> login(@Valid @RequestBody LoginRequest loginRequest, BindingResult bindingResult) {
+    public ResponseEntity<?> login(@Valid @RequestBody AppUser appUser,
+                                   BindingResult bindingResult) {
         try {
-            return new ResponseEntity<>(authService.login(loginRequest), HttpStatus.OK);
+            return new ResponseEntity<>(authService.login(appUser), HttpStatus.OK);
         } catch (Exception e) {
             List<FieldError> errors = bindingResult.getFieldErrors();
 
@@ -51,7 +54,7 @@ public class AuthController {
                 return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
             }
 
-            return new ResponseEntity<>(new ResponseMessage("Server error!"),
+            return new ResponseEntity<>(new ResponseMessage("Invalid credentials!"),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
@@ -64,12 +67,12 @@ public class AuthController {
             Optional<AppUser> optionalUser =
                     appUserRepository.findByUsername(registerRequest.getUsername());
 
-            if (optionalUser != null) {
+            if (!optionalUser.isEmpty()) {
                 return new ResponseEntity<>(new ResponseMessage("Username already exist!"),
                         HttpStatus.OK);
             }
 
-            authService.signup(registerRequest);
+            authService.register(registerRequest);
             return new ResponseEntity<>(new ResponseMessage("User Registration Successfully!"), HttpStatus.OK);
         } catch (Exception e) {
             List<FieldError> errors = bindingResult.getFieldErrors();
@@ -96,7 +99,7 @@ public class AuthController {
                 return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
             }
 
-            return new ResponseEntity<>(new ResponseMessage("Server error!"),
+            return new ResponseEntity<>(new ResponseMessage(e.getMessage()),
                     HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }

@@ -1,9 +1,10 @@
 package com.PingPongManagement.dtos;
 
-import com.PingPongManagement.models.RefreshToken;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -12,4 +13,5 @@ public class AuthenticationResponse {
     private String accessToken;
     private String refreshToken;
     private String username;
+    private Date expiredAt;
 }

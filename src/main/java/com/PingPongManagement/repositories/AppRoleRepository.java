@@ -1,5 +1,6 @@
 package com.PingPongManagement.repositories;
 
+import com.PingPongManagement.models.AppRole;
 import com.PingPongManagement.models.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -19,10 +20,21 @@ public class AppRoleRepository {
     public List<String> getRoleNames(Integer userId) {
         String sql = "Select ur.appRole.roleName from " + UserRole.class.getName() + " ur " +
                 "where" +
-                " ur.user.userId = :userId";
-        Query query = this.entityManager.createQuery(sql, String.class);
+                " ur.appUser.userId = :userId";
+        Query query = entityManager.createQuery(sql, String.class);
         query.setParameter("userId", userId);
 
         return query.getResultList();
+    }
+
+    @SuppressWarnings("unchecked")
+    public AppRole findById(Integer roleId) {
+        String sql = "Select ar from " + AppRole.class.getName() + " ar " + "where ar.roleId = " +
+                ":roleId";
+
+        Query query = entityManager.createQuery(sql, AppRole.class);
+        query.setParameter("roleId", roleId);
+
+        return (AppRole) query.getSingleResult();
     }
 }

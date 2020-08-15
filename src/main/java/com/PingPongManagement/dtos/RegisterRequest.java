@@ -1,5 +1,6 @@
 package com.PingPongManagement.dtos;
 
+import com.PingPongManagement.models.AppRole;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,6 +16,9 @@ public class RegisterRequest {
     @NotBlank(message = "Username can not be empty!")
     private String username;
 
-    @NotBlank(message = "Password can not be empty!")
+    @NotNull(message = "Password can not be empty!")
     private String password;
+
+    @NotNull(message = "Role is required!")
+    private AppRole appRole;
 }
